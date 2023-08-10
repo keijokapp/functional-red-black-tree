@@ -5,22 +5,6 @@ module.exports = createRBTree
 var RED   = 0
 var BLACK = 1
 
-function RBNode(color, key, value, left, right, count) {
-  this._color = color
-  this.key = key
-  this.value = value
-  this.left = left
-  this.right = right
-  this._count = count
-}
-
-function cloneNode(node) {
-  return new RBNode(node._color, node.key, node.value, node.left, node.right, node._count)
-}
-
-function repaint(color, node) {
-  return new RBNode(color, node.key, node.value, node.left, node.right, node._count)
-}
 
 function recount(node) {
   node._count = 1 + (node.left ? node.left._count : 0) + (node.right ? node.right._count : 0)
@@ -81,13 +65,20 @@ proto.insert = function(key, value) {
     }
   }
   //Rebuild path to leaf node
-  n_stack.push(new RBNode(RED, key, value, null, null, 1))
+  n_stack.push({
+    _color: RED,
+    key,
+    value,
+    left: null,
+    right: null,
+    _count: 1
+  })
   for(var s=n_stack.length-2; s>=0; --s) {
     var n = n_stack[s]
     if(d_stack[s] <= 0) {
-      n_stack[s] = new RBNode(n._color, n.key, n.value, n_stack[s+1], n.right, n._count+1)
+      n_stack[s] = { ...n, left: n_stack[s+1], _count: n._count+1 }
     } else {
-      n_stack[s] = new RBNode(n._color, n.key, n.value, n.left, n_stack[s+1], n._count+1)
+      n_stack[s] = { ...n, right: n_stack[s+1], _count: n._count+1 }
     }
   }
   //Rebalance tree using rotations
@@ -105,7 +96,7 @@ proto.insert = function(key, value) {
         if(y && y._color === RED) {
           //console.log("LLr")
           p._color = BLACK
-          pp.right = repaint(BLACK, y)
+          pp.right = { ...y, _color: BLACK }
           pp._color = RED
           s -= 1
         } else {
@@ -133,7 +124,7 @@ proto.insert = function(key, value) {
         if(y && y._color === RED) {
           //console.log("LRr")
           p._color = BLACK
-          pp.right = repaint(BLACK, y)
+          pp.right = { ...y, _color: BLACK }
           pp._color = RED
           s -= 1
         } else {
@@ -166,7 +157,7 @@ proto.insert = function(key, value) {
         if(y && y._color === RED) {
           //console.log("RRr", y.key)
           p._color = BLACK
-          pp.left = repaint(BLACK, y)
+          pp.left = { ...y, _color: BLACK }
           pp._color = RED
           s -= 1
         } else {
@@ -194,7 +185,7 @@ proto.insert = function(key, value) {
         if(y && y._color === RED) {
           //console.log("RLr")
           p._color = BLACK
-          pp.left = repaint(BLACK, y)
+          pp.left = { ...y, _color: BLACK }
           pp._color = RED
           s -= 1
         } else {
@@ -520,16 +511,6 @@ iproto.clone = function() {
   return new RedBlackTreeIterator(this.tree, this._stack.slice())
 }
 
-//Swaps two nodes
-function swapNode(n, v) {
-  n.key = v.key
-  n.value = v.value
-  n.left = v.left
-  n.right = v.right
-  n._color = v._color
-  n._count = v._count
-}
-
 //Fix up a double black node in a tree
 function fixDoubleBlack(stack) {
   var n, p, s, z
@@ -546,8 +527,8 @@ function fixDoubleBlack(stack) {
       s = p.right
       if(s.right && s.right._color === RED) {
         //console.log("case 1: right sibling child red")
-        s = p.right = cloneNode(s)
-        z = s.right = cloneNode(s.right)
+        s = p.right = { ...s }
+        z = s.right = { ...s.right }
         p.right = s.left
         s.left = p
         s.right = z
@@ -569,8 +550,8 @@ function fixDoubleBlack(stack) {
         return
       } else if(s.left && s.left._color === RED) {
         //console.log("case 1: left sibling child red")
-        s = p.right = cloneNode(s)
-        z = s.left = cloneNode(s.left)
+        s = p.right = { ...s }
+        z = s.left = { ...s.left }
         p.right = z.left
         s.left = z.right
         z.left = p
@@ -597,16 +578,16 @@ function fixDoubleBlack(stack) {
         if(p._color === RED) {
           //console.log("case 2: black sibling, red parent", p.right.value)
           p._color = BLACK
-          p.right = repaint(RED, s)
+          p.right = { ...s, _color: RED }
           return
         } else {
           //console.log("case 2: black sibling, black parent", p.right.value)
-          p.right = repaint(RED, s)
+          p.right = { ...s, _color: RED }
           continue  
         }
       } else {
         //console.log("case 3: red sibling")
-        s = cloneNode(s)
+        s = { ...s }
         p.right = s.left
         s.left = p
         s._color = p._color
@@ -635,8 +616,8 @@ function fixDoubleBlack(stack) {
       s = p.left
       if(s.left && s.left._color === RED) {
         //console.log("case 1: left sibling child red", p.value, p._color)
-        s = p.left = cloneNode(s)
-        z = s.left = cloneNode(s.left)
+        s = p.left = { ...s }
+        z = s.left = { ...s.left }
         p.left = s.right
         s.right = p
         s.left = z
@@ -658,8 +639,8 @@ function fixDoubleBlack(stack) {
         return
       } else if(s.right && s.right._color === RED) {
         //console.log("case 1: right sibling child red")
-        s = p.left = cloneNode(s)
-        z = s.right = cloneNode(s.right)
+        s = p.left = { ...s }
+        z = s.right = { ...s.right }
         p.left = z.right
         s.right = z.left
         z.right = p
@@ -686,16 +667,16 @@ function fixDoubleBlack(stack) {
         if(p._color === RED) {
           //console.log("case 2: black sibling, red parent")
           p._color = BLACK
-          p.left = repaint(RED, s)
+          p.left = { ...s, _color: RED }
           return
         } else {
           //console.log("case 2: black sibling, black parent")
-          p.left = repaint(RED, s)
+          p.left = { ...s, _color: RED }
           continue  
         }
       } else {
         //console.log("case 3: red sibling")
-        s = cloneNode(s)
+        s = { ...s }
         p.left = s.right
         s.right = p
         s._color = p._color
@@ -732,13 +713,13 @@ iproto.remove = function() {
   //First copy path to node
   var cstack = new Array(stack.length)
   var n = stack[stack.length-1]
-  cstack[cstack.length-1] = new RBNode(n._color, n.key, n.value, n.left, n.right, n._count)
+  cstack[cstack.length-1] = { ...n }
   for(var i=stack.length-2; i>=0; --i) {
     var n = stack[i]
     if(n.left === stack[i+1]) {
-      cstack[i] = new RBNode(n._color, n.key, n.value, cstack[i+1], n.right, n._count)
+      cstack[i] = { ...n, left: cstack[i+1] }
     } else {
-      cstack[i] = new RBNode(n._color, n.key, n.value, n.left, cstack[i+1], n._count)
+      cstack[i] = { ...n, right: cstack[i+1] }
     }
   }
 
@@ -759,14 +740,14 @@ iproto.remove = function() {
     }
     //Copy path to leaf
     var v = cstack[split-1]
-    cstack.push(new RBNode(n._color, v.key, v.value, n.left, n.right, n._count))
+    cstack.push({ ...n, key: v.key, value: v.value })
     cstack[split-1].key = n.key
     cstack[split-1].value = n.value
 
     //Fix up stack
     for(var i=cstack.length-2; i>=split; --i) {
       n = cstack[i]
-      cstack[i] = new RBNode(n._color, n.key, n.value, n.left, cstack[i+1], n._count)
+      cstack[i] = { ...n, right: cstack[i+1] }
     }
     cstack[split-1].left = cstack[split]
   }
@@ -793,9 +774,9 @@ iproto.remove = function() {
       //Second easy case:  Single child black parent
       //console.log("BLACK single child")
       if(n.left) {
-        swapNode(n, n.left)
+        Object.assign(n, n.left)
       } else if(n.right) {
-        swapNode(n, n.right)
+        Object.assign(n, n.right)
       }
       //Child must be red, so repaint it black to balance color
       n._color = BLACK
@@ -925,13 +906,13 @@ iproto.update = function(value) {
   }
   var cstack = new Array(stack.length)
   var n = stack[stack.length-1]
-  cstack[cstack.length-1] = new RBNode(n._color, n.key, value, n.left, n.right, n._count)
+  cstack[cstack.length-1] = { ...n, value }
   for(var i=stack.length-2; i>=0; --i) {
     n = stack[i]
     if(n.left === stack[i+1]) {
-      cstack[i] = new RBNode(n._color, n.key, n.value, cstack[i+1], n.right, n._count)
+      cstack[i] = { ...n, left: cstack[i+1] }
     } else {
-      cstack[i] = new RBNode(n._color, n.key, n.value, n.left, cstack[i+1], n._count)
+      cstack[i] = { ...n, right: cstack[i+1] }
     }
   }
   return new RedBlackTree(this.tree._compare, cstack[0])
