@@ -17,7 +17,7 @@ class RedBlackTree {
 
   get keys() {
     const result = []
-    this.forEach((k, v) => {
+    this.forEach(k => {
       result.push(k)
     })
     return result
@@ -144,66 +144,64 @@ class RedBlackTree {
             break
           }
         }
-      } else {
-        if(p.right === n) {
-          const y = pp.left
-          if(y && y._color === RED) {
-            //console.log("RRr", y.key)
-            p._color = BLACK
-            pp.left = { ...y, _color: BLACK }
-            pp._color = RED
-            s -= 1
-          } else {
-            //console.log("RRb")
-            pp._color = RED
-            pp.right = p.left
-            p._color = BLACK
-            p.left = pp
-            nStack[s - 2] = p
-            nStack[s - 1] = n
-            recount(pp)
-            recount(p)
-            if(s >= 3) {
-              const ppp = nStack[s - 3]
-              if(ppp.right === pp) {
-                ppp.right = p
-              } else {
-                ppp.left = p
-              }
-            }
-            break
-          }
+      } else if(p.right === n) {
+        const y = pp.left
+        if(y && y._color === RED) {
+          //console.log("RRr", y.key)
+          p._color = BLACK
+          pp.left = { ...y, _color: BLACK }
+          pp._color = RED
+          s -= 1
         } else {
-          const y = pp.left
-          if(y && y._color === RED) {
-            //console.log("RLr")
-            p._color = BLACK
-            pp.left = { ...y, _color: BLACK }
-            pp._color = RED
-            s -= 1
-          } else {
-            //console.log("RLb")
-            p.left = n.right
-            pp._color = RED
-            pp.right = n.left
-            n._color = BLACK
-            n.right = p
-            n.left = pp
-            nStack[s - 2] = n
-            nStack[s - 1] = p
-            recount(pp)
-            recount(p)
-            recount(n)
-            if(s >= 3) {
-              const ppp = nStack[s - 3]
-              if(ppp.right === pp) {
-                ppp.right = n
-              } else {
-                ppp.left = n
-              }
+          //console.log("RRb")
+          pp._color = RED
+          pp.right = p.left
+          p._color = BLACK
+          p.left = pp
+          nStack[s - 2] = p
+          nStack[s - 1] = n
+          recount(pp)
+          recount(p)
+          if(s >= 3) {
+            const ppp = nStack[s - 3]
+            if(ppp.right === pp) {
+              ppp.right = p
+            } else {
+              ppp.left = p
             }
-            break
           }
+          break
+        }
+      } else {
+        const y = pp.left
+        if(y && y._color === RED) {
+          //console.log("RLr")
+          p._color = BLACK
+          pp.left = { ...y, _color: BLACK }
+          pp._color = RED
+          s -= 1
+        } else {
+          //console.log("RLb")
+          p.left = n.right
+          pp._color = RED
+          pp.right = n.left
+          n._color = BLACK
+          n.right = p
+          n.left = pp
+          nStack[s - 2] = n
+          nStack[s - 1] = p
+          recount(pp)
+          recount(p)
+          recount(n)
+          if(s >= 3) {
+            const ppp = nStack[s - 3]
+            if(ppp.right === pp) {
+              ppp.right = n
+            } else {
+              ppp.left = n
+            }
+          }
+          break
         }
       }
     }
@@ -217,20 +215,12 @@ class RedBlackTree {
       return
     }
     switch(arguments.length) {
-      case 1:
-        return doVisitFull(visit, this.root)
-        break
-
-      case 2:
-        return doVisitHalf(lo, this._compare, visit, this.root)
-        break
-
+      case 1: return doVisitFull(visit, this.root)
+      case 2: return doVisitHalf(lo, this._compare, visit, this.root)
       case 3:
-        if(this._compare(lo, hi) >= 0) {
-          return
+        if(this._compare(lo, hi) < 0) {
+          return doVisit(lo, hi, this._compare, visit, this.root)
         }
-        return doVisit(lo, hi, this._compare, visit, this.root)
-        break
     }
   }
 
@@ -263,7 +253,7 @@ class RedBlackTree {
     }
     let n = this.root
     const stack = []
-    while(true) {
+    for(;;) {
       stack.push(n)
       if(n.left) {
         if(idx < n.left._count) {
@@ -298,8 +288,6 @@ class RedBlackTree {
       stack.push(n)
       if(d <= 0) {
         lastPtr = stack.length
-      }
-      if(d <= 0) {
         n = n.left
       } else {
         n = n.right
@@ -319,8 +307,6 @@ class RedBlackTree {
       stack.push(n)
       if(d < 0) {
         lastPtr = stack.length
-      }
-      if(d < 0) {
         n = n.left
       } else {
         n = n.right
@@ -338,12 +324,10 @@ class RedBlackTree {
     while(n) {
       const d = cmp(key, n.key)
       stack.push(n)
-      if(d > 0) {
-        lastPtr = stack.length
-      }
       if(d <= 0) {
         n = n.left
       } else {
+        lastPtr = stack.length
         n = n.right
       }
     }
@@ -359,12 +343,10 @@ class RedBlackTree {
     while(n) {
       const d = cmp(key, n.key)
       stack.push(n)
-      if(d >= 0) {
-        lastPtr = stack.length
-      }
       if(d < 0) {
         n = n.left
       } else {
+        lastPtr = stack.length
         n = n.right
       }
     }
@@ -547,40 +529,36 @@ class RedBlackTreeIterator {
       for(let i = 0; i < cstack.length; ++i) {
         cstack[i]._count--
       }
-      return new RedBlackTree(this.tree._compare, cstack[0])
+    } else if(n.left || n.right) {
+      //Second easy case:  Single child black parent
+      //console.log("BLACK single child")
+      if(n.left) {
+        Object.assign(n, n.left)
+      } else if(n.right) {
+        Object.assign(n, n.right)
+      }
+      //Child must be red, so repaint it black to balance color
+      n._color = BLACK
+      for(let i = 0; i < cstack.length - 1; ++i) {
+        cstack[i]._count--
+      }
+    } else if(cstack.length === 1) {
+      //Third easy case: root
+      //console.log("ROOT")
+      return new RedBlackTree(this.tree._compare, null)
     } else {
-      if(n.left || n.right) {
-        //Second easy case:  Single child black parent
-        //console.log("BLACK single child")
-        if(n.left) {
-          Object.assign(n, n.left)
-        } else if(n.right) {
-          Object.assign(n, n.right)
-        }
-        //Child must be red, so repaint it black to balance color
-        n._color = BLACK
-        for(let i = 0; i < cstack.length - 1; ++i) {
-          cstack[i]._count--
-        }
-        return new RedBlackTree(this.tree._compare, cstack[0])
-      } else if(cstack.length === 1) {
-        //Third easy case: root
-        //console.log("ROOT")
-        return new RedBlackTree(this.tree._compare, null)
+      //Hard case: Repaint n, and then do some nasty stuff
+      //console.log("BLACK leaf no children")
+      for(let i = 0; i < cstack.length; ++i) {
+        cstack[i]._count--
+      }
+      const parent = cstack[cstack.length - 2]
+      fixDoubleBlack(cstack)
+      //Fix up links
+      if(parent.left === n) {
+        parent.left = null
       } else {
-        //Hard case: Repaint n, and then do some nasty stuff
-        //console.log("BLACK leaf no children")
-        for(let i = 0; i < cstack.length; ++i) {
-          cstack[i]._count--
-        }
-        const parent = cstack[cstack.length - 2]
-        fixDoubleBlack(cstack)
-        //Fix up links
-        if(parent.left === n) {
-          parent.left = null
-        } else {
-          parent.right = null
-        }
+        parent.right = null
       }
     }
     return new RedBlackTree(this.tree._compare, cstack[0])
@@ -712,7 +690,6 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
       if(this._stack.length > 0) {
         return this._stack[this._stack.length - 1].value
       }
-      return
     },
     enumerable: true
   },
@@ -727,7 +704,8 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
           return r._count
         }
         return 0
-      } else if(stack[stack.length - 1].left) {
+      }
+      if(stack[stack.length - 1].left) {
         idx = stack[stack.length - 1].left._count
       }
       for(let s = stack.length - 2; s >= 0; --s) {
@@ -746,18 +724,15 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
 
 //Fix up a double black node in a tree
 function fixDoubleBlack(stack) {
-  for(let i = stack.length - 1; i >= 0; --i) {
+  for(let i = stack.length - 1; i > 0; --i) {
     const n = stack[i]
-    if(i === 0) {
-      n._color = BLACK
-      return
-    }
+
     //console.log("visit node:", n.key, i, stack[i].key, stack[i-1].key)
     const p = stack[i - 1]
     if(p.left === n) {
       //console.log("left child")
       const s = p.right
-      if(s.right && s.right._color === RED) {
+      if(s.right?._color === RED) {
         //console.log("case 1: right sibling child red")
         const s = { ...p.right }
         const z = { ...s.right }
@@ -780,7 +755,8 @@ function fixDoubleBlack(stack) {
         }
         stack[i - 1] = s
         return
-      } else if(s.left && s.left._color === RED) {
+      }
+      if(s.left?._color === RED) {
         //console.log("case 1: left sibling child red")
         const s = { ...p.right }
         const z = { ...s.left }
@@ -812,11 +788,10 @@ function fixDoubleBlack(stack) {
           p._color = BLACK
           p.right = { ...s, _color: RED }
           return
-        } else {
-          //console.log("case 2: black sibling, black parent", p.right.value)
-          p.right = { ...s, _color: RED }
-          continue
         }
+
+        //console.log("case 2: black sibling, black parent", p.right.value)
+        p.right = { ...s, _color: RED }
       } else {
         //console.log("case 3: red sibling")
         const s = { ...p.right }
@@ -841,12 +816,13 @@ function fixDoubleBlack(stack) {
         } else {
           stack.push(n)
         }
-        i = i + 2
+        i += 2
       }
     } else {
       //console.log("right child")
       const s = p.left
-      if(s.left && s.left._color === RED) {
+
+      if(s.left?._color === RED) {
         //console.log("case 1: left sibling child red", p.value, p._color)
         const s = { ...p.left }
         const z = { ...s.left }
@@ -869,7 +845,9 @@ function fixDoubleBlack(stack) {
         }
         stack[i - 1] = s
         return
-      } else if(s.right && s.right._color === RED) {
+      }
+
+      if(s.right?._color === RED) {
         //console.log("case 1: right sibling child red")
         const s = { ...p.left }
         const z = { ...s.right }
@@ -897,15 +875,13 @@ function fixDoubleBlack(stack) {
       }
       if(s._color === BLACK) {
         if(p._color === RED) {
-          //console.log("case 2: black sibling, red parent")
           p._color = BLACK
           p.left = { ...s, _color: RED }
           return
-        } else {
-          //console.log("case 2: black sibling, black parent")
-          p.left = { ...s, _color: RED }
-          continue
         }
+
+        //console.log("case 2: black sibling, black parent")
+        p.left = { ...s, _color: RED }
       } else {
         //console.log("case 3: red sibling")
         const s = { ...p.left }
@@ -930,10 +906,12 @@ function fixDoubleBlack(stack) {
         } else {
           stack.push(n)
         }
-        i = i + 2
+        i += 2
       }
     }
   }
+
+  stack[0]._color = BLACK
 }
 
 //Default comparison function
