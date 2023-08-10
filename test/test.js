@@ -119,76 +119,76 @@ tape('foreach', t => {
   const u = iota(31).reduce((u, k, v) => u.insert(k, v), makeTree())
 
   // Check basic foreach
-  let visit_keys = []
-  let visit_vals = []
+  let visitKeys = []
+  let visitVals = []
   u.forEach((k, v) => {
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   })
-  t.same(visit_keys, u.keys)
-  t.same(visit_vals, u.values)
+  t.same(visitKeys, u.keys)
+  t.same(visitVals, u.values)
 
   // Check foreach with termination
-  visit_keys = []
-  visit_vals = []
+  visitKeys = []
+  visitVals = []
   t.equals(u.forEach((k, v) => {
     if (k === 5) {
       return 1000
     }
 
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   }), 1000)
-  t.same(visit_keys, u.keys.slice(0, 5))
-  t.same(visit_vals, u.values.slice(0, 5))
+  t.same(visitKeys, u.keys.slice(0, 5))
+  t.same(visitVals, u.values.slice(0, 5))
 
   // Check half interval foreach
-  visit_keys = []
-  visit_vals = []
+  visitKeys = []
+  visitVals = []
   u.forEach((k, v) => {
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   }, 3)
-  t.same(visit_keys, u.keys.slice(3))
-  t.same(visit_vals, u.values.slice(3))
+  t.same(visitKeys, u.keys.slice(3))
+  t.same(visitVals, u.values.slice(3))
 
   // Check half interval foreach with termination
-  visit_keys = []
-  visit_vals = []
+  visitKeys = []
+  visitVals = []
   t.equals(u.forEach((k, v) => {
     if (k === 12) {
       return 1000
     }
 
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   }, 3), 1000)
-  t.same(visit_keys, u.keys.slice(3, 12))
-  t.same(visit_vals, u.values.slice(3, 12))
+  t.same(visitKeys, u.keys.slice(3, 12))
+  t.same(visitVals, u.values.slice(3, 12))
 
   // Check interval foreach
-  visit_keys = []
-  visit_vals = []
+  visitKeys = []
+  visitVals = []
   u.forEach((k, v) => {
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   }, 3, 15)
-  t.same(visit_keys, u.keys.slice(3, 15))
-  t.same(visit_vals, u.values.slice(3, 15))
+  t.same(visitKeys, u.keys.slice(3, 15))
+  t.same(visitVals, u.values.slice(3, 15))
 
   // Check interval foreach with termination
-  visit_keys = []
-  visit_vals = []
+  visitKeys = []
+  visitVals = []
   t.equals(u.forEach((k, v) => {
     if (k === 12) {
       return 1000
     }
 
-    visit_keys.push(k)
-    visit_vals.push(v)
+    visitKeys.push(k)
+    visitVals.push(v)
   }, 3, 15), 1000)
-  t.same(visit_keys, u.keys.slice(3, 12))
-  t.same(visit_vals, u.values.slice(3, 12))
+  t.same(visitKeys, u.keys.slice(3, 12))
+  t.same(visitVals, u.values.slice(3, 12))
 
   t.end()
 })
@@ -276,16 +276,16 @@ tape('update()', t => {
 })
 
 tape('keys and values', t => {
-  const original_keys = ['potato', 'sock', 'foot', 'apple', 'newspaper', 'gameboy']
-  const original_values = [42, 10, false, '!!!', {}, null]
+  const originalKeys = ['potato', 'sock', 'foot', 'apple', 'newspaper', 'gameboy']
+  const originalValues = [42, 10, false, '!!!', {}, null]
 
   let u = makeTree()
 
-  for (let i = 0; i < original_keys.length; ++i) {
-    u = u.insert(original_keys[i], original_values[i])
+  for (let i = 0; i < originalKeys.length; ++i) {
+    u = u.insert(originalKeys[i], originalValues[i])
   }
 
-  const zipped = iota(6).map(i => [original_keys[i], original_values[i]])
+  const zipped = iota(6).map(i => [originalKeys[i], originalValues[i]])
 
   zipped.sort((a, b) => {
     if (a[0] < b[0]) {

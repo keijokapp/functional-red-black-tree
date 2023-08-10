@@ -4,7 +4,6 @@ export default [
   ...base,
   {
     rules: {
-      camelcase: 'off',
       'getter-return': 'off',
       'import/no-commonjs': 'off',
       'no-multi-assign': 'off',

@@ -47,13 +47,13 @@ class RedBlackTree {
     const cmp = this._compare
     // Find point to insert new node at
     let n = this.root
-    const n_stack = []
-    const d_stack = []
+    const nStack = []
+    const dStack = []
 
     while (n) {
       const d = cmp(key, n.key)
-      n_stack.push(n)
-      d_stack.push(d)
+      nStack.push(n)
+      dStack.push(d)
 
       if (d <= 0) {
         n = n.left
@@ -63,7 +63,7 @@ class RedBlackTree {
     }
 
     // Rebuild path to leaf node
-    n_stack.push({
+    nStack.push({
       _color: RED,
       key,
       value,
@@ -72,27 +72,27 @@ class RedBlackTree {
       _count: 1,
     })
 
-    for (let s = n_stack.length - 2; s >= 0; --s) {
-      const n = n_stack[s]
+    for (let s = nStack.length - 2; s >= 0; --s) {
+      const n = nStack[s]
 
-      if (d_stack[s] <= 0) {
-        n_stack[s] = { ...n, left: n_stack[s + 1], _count: n._count + 1 }
+      if (dStack[s] <= 0) {
+        nStack[s] = { ...n, left: nStack[s + 1], _count: n._count + 1 }
       } else {
-        n_stack[s] = { ...n, right: n_stack[s + 1], _count: n._count + 1 }
+        nStack[s] = { ...n, right: nStack[s + 1], _count: n._count + 1 }
       }
     }
 
     // Rebalance tree using rotations
-    // console.log("start insert", key, d_stack)
-    for (let s = n_stack.length - 1; s > 1; --s) {
-      const p = n_stack[s - 1]
-      const n = n_stack[s]
+    // console.log("start insert", key, dStack)
+    for (let s = nStack.length - 1; s > 1; --s) {
+      const p = nStack[s - 1]
+      const n = nStack[s]
 
       if (p._color === BLACK || n._color === BLACK) {
         break
       }
 
-      const pp = n_stack[s - 2]
+      const pp = nStack[s - 2]
 
       if (pp.left === p) {
         if (p.left === n) {
@@ -110,13 +110,13 @@ class RedBlackTree {
             pp.left = p.right
             p._color = BLACK
             p.right = pp
-            n_stack[s - 2] = p
-            n_stack[s - 1] = n
+            nStack[s - 2] = p
+            nStack[s - 1] = n
             recount(pp)
             recount(p)
 
             if (s >= 3) {
-              const ppp = n_stack[s - 3]
+              const ppp = nStack[s - 3]
 
               if (ppp.left === pp) {
                 ppp.left = p
@@ -144,14 +144,14 @@ class RedBlackTree {
             n._color = BLACK
             n.left = p
             n.right = pp
-            n_stack[s - 2] = n
-            n_stack[s - 1] = p
+            nStack[s - 2] = n
+            nStack[s - 1] = p
             recount(pp)
             recount(p)
             recount(n)
 
             if (s >= 3) {
-              const ppp = n_stack[s - 3]
+              const ppp = nStack[s - 3]
 
               if (ppp.left === pp) {
                 ppp.left = n
@@ -178,13 +178,13 @@ class RedBlackTree {
           pp.right = p.left
           p._color = BLACK
           p.left = pp
-          n_stack[s - 2] = p
-          n_stack[s - 1] = n
+          nStack[s - 2] = p
+          nStack[s - 1] = n
           recount(pp)
           recount(p)
 
           if (s >= 3) {
-            const ppp = n_stack[s - 3]
+            const ppp = nStack[s - 3]
 
             if (ppp.right === pp) {
               ppp.right = p
@@ -212,14 +212,14 @@ class RedBlackTree {
           n._color = BLACK
           n.right = p
           n.left = pp
-          n_stack[s - 2] = n
-          n_stack[s - 1] = p
+          nStack[s - 2] = n
+          nStack[s - 1] = p
           recount(pp)
           recount(p)
           recount(n)
 
           if (s >= 3) {
-            const ppp = n_stack[s - 3]
+            const ppp = nStack[s - 3]
 
             if (ppp.right === pp) {
               ppp.right = n
@@ -234,9 +234,9 @@ class RedBlackTree {
     }
 
     // Return new tree
-    n_stack[0]._color = BLACK
+    nStack[0]._color = BLACK
 
-    return new RedBlackTree(cmp, n_stack[0])
+    return new RedBlackTree(cmp, nStack[0])
   }
 
   forEach(visit, lo, hi) {
@@ -331,14 +331,14 @@ class RedBlackTree {
     const cmp = this._compare
     let n = this.root
     const stack = []
-    let last_ptr = 0
+    let lastPtr = 0
 
     while (n) {
       const d = cmp(key, n.key)
       stack.push(n)
 
       if (d <= 0) {
-        last_ptr = stack.length
+        lastPtr = stack.length
       }
 
       if (d <= 0) {
@@ -348,7 +348,7 @@ class RedBlackTree {
       }
     }
 
-    stack.length = last_ptr
+    stack.length = lastPtr
 
     return new RedBlackTreeIterator(this, stack)
   }
@@ -357,14 +357,14 @@ class RedBlackTree {
     const cmp = this._compare
     let n = this.root
     const stack = []
-    let last_ptr = 0
+    let lastPtr = 0
 
     while (n) {
       const d = cmp(key, n.key)
       stack.push(n)
 
       if (d < 0) {
-        last_ptr = stack.length
+        lastPtr = stack.length
       }
 
       if (d < 0) {
@@ -374,7 +374,7 @@ class RedBlackTree {
       }
     }
 
-    stack.length = last_ptr
+    stack.length = lastPtr
 
     return new RedBlackTreeIterator(this, stack)
   }
@@ -383,14 +383,14 @@ class RedBlackTree {
     const cmp = this._compare
     let n = this.root
     const stack = []
-    let last_ptr = 0
+    let lastPtr = 0
 
     while (n) {
       const d = cmp(key, n.key)
       stack.push(n)
 
       if (d > 0) {
-        last_ptr = stack.length
+        lastPtr = stack.length
       }
 
       if (d <= 0) {
@@ -400,7 +400,7 @@ class RedBlackTree {
       }
     }
 
-    stack.length = last_ptr
+    stack.length = lastPtr
 
     return new RedBlackTreeIterator(this, stack)
   }
@@ -409,14 +409,14 @@ class RedBlackTree {
     const cmp = this._compare
     let n = this.root
     const stack = []
-    let last_ptr = 0
+    let lastPtr = 0
 
     while (n) {
       const d = cmp(key, n.key)
       stack.push(n)
 
       if (d >= 0) {
-        last_ptr = stack.length
+        lastPtr = stack.length
       }
 
       if (d < 0) {
@@ -426,7 +426,7 @@ class RedBlackTree {
       }
     }
 
-    stack.length = last_ptr
+    stack.length = lastPtr
 
     return new RedBlackTreeIterator(this, stack)
   }
@@ -436,14 +436,14 @@ class RedBlackTree {
     const cmp = this._compare
     let n = this.root
     const stack = []
-    let last_ptr = 0
+    let lastPtr = 0
 
     while (n) {
       const d = cmp(key, n.key)
       stack.push(n)
 
       if (d === 0) {
-        last_ptr = stack.length
+        lastPtr = stack.length
       }
 
       if (d <= 0) {
@@ -453,7 +453,7 @@ class RedBlackTree {
       }
     }
 
-    stack.length = last_ptr
+    stack.length = lastPtr
 
     return new RedBlackTreeIterator(this, stack)
   }
