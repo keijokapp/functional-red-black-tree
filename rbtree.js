@@ -2,8 +2,8 @@
 
 module.exports = createRBTree
 
-var RED   = 0
-var BLACK = 1
+const RED   = 0
+const BLACK = 1
 
 function recount(node) {
   node._count = 1 + (node.left ? node.left._count : 0) + (node.right ? node.right._count : 0)
@@ -16,7 +16,7 @@ class RedBlackTree {
   }
 
   get keys() {
-    var result = []
+    const result = []
     this.forEach(function(k,v) {
       result.push(k)
     })
@@ -24,7 +24,7 @@ class RedBlackTree {
   }
 
   get values() {
-    var result = []
+    const result = []
     this.forEach(function(k,v) {
       result.push(v)
     })
@@ -41,13 +41,14 @@ class RedBlackTree {
 
   //Insert a new item into the tree
   insert(key, value) {
-    var cmp = this._compare
+    const cmp = this._compare
     //Find point to insert new node at
-    var n = this.root
-    var n_stack = []
-    var d_stack = []
+    let n = this.root
+    const n_stack = []
+    const d_stack = []
+
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       n_stack.push(n)
       d_stack.push(d)
       if(d <= 0) {
@@ -65,8 +66,8 @@ class RedBlackTree {
       right: null,
       _count: 1
     })
-    for(var s=n_stack.length-2; s>=0; --s) {
-      var n = n_stack[s]
+    for(let s = n_stack.length-2; s>=0; --s) {
+      const n = n_stack[s]
       if(d_stack[s] <= 0) {
         n_stack[s] = { ...n, left: n_stack[s+1], _count: n._count+1 }
       } else {
@@ -75,16 +76,16 @@ class RedBlackTree {
     }
     //Rebalance tree using rotations
     //console.log("start insert", key, d_stack)
-    for(var s=n_stack.length-1; s>1; --s) {
-      var p = n_stack[s-1]
-      var n = n_stack[s]
+    for(let s=n_stack.length-1; s>1; --s) {
+      const p = n_stack[s-1]
+      const n = n_stack[s]
       if(p._color === BLACK || n._color === BLACK) {
         break
       }
-      var pp = n_stack[s-2]
+      const pp = n_stack[s-2]
       if(pp.left === p) {
         if(p.left === n) {
-          var y = pp.right
+          const y = pp.right
           if(y && y._color === RED) {
             //console.log("LLr")
             p._color = BLACK
@@ -102,7 +103,7 @@ class RedBlackTree {
             recount(pp)
             recount(p)
             if(s >= 3) {
-              var ppp = n_stack[s-3]
+              const ppp = n_stack[s-3]
               if(ppp.left === pp) {
                 ppp.left = p
               } else {
@@ -112,7 +113,7 @@ class RedBlackTree {
             break
           }
         } else {
-          var y = pp.right
+          const y = pp.right
           if(y && y._color === RED) {
             //console.log("LRr")
             p._color = BLACK
@@ -133,7 +134,7 @@ class RedBlackTree {
             recount(p)
             recount(n)
             if(s >= 3) {
-              var ppp = n_stack[s-3]
+              const ppp = n_stack[s-3]
               if(ppp.left === pp) {
                 ppp.left = n
               } else {
@@ -145,7 +146,7 @@ class RedBlackTree {
         }
       } else {
         if(p.right === n) {
-          var y = pp.left
+          const y = pp.left
           if(y && y._color === RED) {
             //console.log("RRr", y.key)
             p._color = BLACK
@@ -163,7 +164,7 @@ class RedBlackTree {
             recount(pp)
             recount(p)
             if(s >= 3) {
-              var ppp = n_stack[s-3]
+              const ppp = n_stack[s-3]
               if(ppp.right === pp) {
                 ppp.right = p
               } else {
@@ -173,7 +174,7 @@ class RedBlackTree {
             break
           }
         } else {
-          var y = pp.left
+          const y = pp.left
           if(y && y._color === RED) {
             //console.log("RLr")
             p._color = BLACK
@@ -194,7 +195,7 @@ class RedBlackTree {
             recount(p)
             recount(n)
             if(s >= 3) {
-              var ppp = n_stack[s-3]
+              const ppp = n_stack[s-3]
               if(ppp.right === pp) {
                 ppp.right = n
               } else {
@@ -235,8 +236,8 @@ class RedBlackTree {
 
   //First item in list
   get begin() {
-    var stack = []
-    var n = this.root
+    const stack = []
+    let n = this.root
     while(n) {
       stack.push(n)
       n = n.left
@@ -246,8 +247,8 @@ class RedBlackTree {
 
   //Last item in list
   get end() {
-    var stack = []
-    var n = this.root
+    const stack = []
+    let n = this.root
     while(n) {
       stack.push(n)
       n = n.right
@@ -260,8 +261,8 @@ class RedBlackTree {
     if(idx < 0) {
       return new RedBlackTreeIterator(this, [])
     }
-    var n = this.root
-    var stack = []
+    let n = this.root
+    const stack = []
     while(true) {
       stack.push(n)
       if(n.left) {
@@ -288,12 +289,12 @@ class RedBlackTree {
   }
 
   ge(key) {
-    var cmp = this._compare
-    var n = this.root
-    var stack = []
-    var last_ptr = 0
+    const cmp = this._compare
+    let n = this.root
+    const stack = []
+    let last_ptr = 0
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       stack.push(n)
       if(d <= 0) {
         last_ptr = stack.length
@@ -309,12 +310,12 @@ class RedBlackTree {
   }
 
   gt(key) {
-    var cmp = this._compare
-    var n = this.root
-    var stack = []
-    var last_ptr = 0
+    const cmp = this._compare
+    let n = this.root
+    const stack = []
+    let last_ptr = 0
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       stack.push(n)
       if(d < 0) {
         last_ptr = stack.length
@@ -330,12 +331,12 @@ class RedBlackTree {
   }
 
   lt(key) {
-    var cmp = this._compare
-    var n = this.root
-    var stack = []
-    var last_ptr = 0
+    const cmp = this._compare
+    let n = this.root
+    const stack = []
+    let last_ptr = 0
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       stack.push(n)
       if(d > 0) {
         last_ptr = stack.length
@@ -351,12 +352,12 @@ class RedBlackTree {
   }
 
   le(key) {
-    var cmp = this._compare
-    var n = this.root
-    var stack = []
-    var last_ptr = 0
+    const cmp = this._compare
+    let n = this.root
+    const stack = []
+    let last_ptr = 0
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       stack.push(n)
       if(d >= 0) {
         last_ptr = stack.length
@@ -373,12 +374,12 @@ class RedBlackTree {
 
   //Finds the item with key if it exists
   find(key) {
-    var cmp = this._compare
-    var n = this.root
-    var stack = []
-    var last_ptr = 0
+    const cmp = this._compare
+    let n = this.root
+    const stack = []
+    let last_ptr = 0
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       stack.push(n)
       if(d === 0) {
         last_ptr = stack.length
@@ -400,11 +401,11 @@ class RedBlackTree {
 
   //Returns the item at `key`
   get(key) {
-    var cmp = this._compare
-    var n = this.root
-    var value
+    const cmp = this._compare
+    let n = this.root
+    let value
     while(n) {
-      var d = cmp(key, n.key)
+      const d = cmp(key, n.key)
       if(d === 0) {
         value = n.value
       }
@@ -421,10 +422,10 @@ class RedBlackTree {
 //Visit all nodes inorder
 function doVisitFull(visit, node) {
   if(node.left) {
-    var v = doVisitFull(visit, node.left)
+    const v = doVisitFull(visit, node.left)
     if(v) { return v }
   }
-  var v = visit(node.key, node.value)
+  const v = visit(node.key, node.value)
   if(v) { return v }
   if(node.right) {
     return doVisitFull(visit, node.right)
@@ -433,13 +434,13 @@ function doVisitFull(visit, node) {
 
 //Visit half nodes in order
 function doVisitHalf(lo, compare, visit, node) {
-  var l = compare(lo, node.key)
+  const l = compare(lo, node.key)
   if(l <= 0) {
     if(node.left) {
-      var v = doVisitHalf(lo, compare, visit, node.left)
+      const v = doVisitHalf(lo, compare, visit, node.left)
       if(v) { return v }
     }
-    var v = visit(node.key, node.value)
+    const v = visit(node.key, node.value)
     if(v) { return v }
   }
   if(node.right) {
@@ -449,16 +450,15 @@ function doVisitHalf(lo, compare, visit, node) {
 
 //Visit all nodes within a range
 function doVisit(lo, hi, compare, visit, node) {
-  var l = compare(lo, node.key)
-  var h = compare(hi, node.key)
-  var v
+  const l = compare(lo, node.key)
+  const h = compare(hi, node.key)
   if(l <= 0) {
     if(node.left) {
-      v = doVisit(lo, hi, compare, visit, node.left)
+      const v = doVisit(lo, hi, compare, visit, node.left)
       if(v) { return v }
     }
     if(h > 0) {
-      v = visit(node.key, node.value)
+      const v = visit(node.key, node.value)
       if(v) { return v }
     }
   }
@@ -485,16 +485,16 @@ class RedBlackTreeIterator {
 
   //Removes item at iterator from tree
   remove() {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       return this.tree
     }
     //First copy path to node
-    var cstack = new Array(stack.length)
-    var n = stack[stack.length-1]
+    const cstack = new Array(stack.length)
+    let n = stack[stack.length-1]
     cstack[cstack.length-1] = { ...n }
-    for(var i=stack.length-2; i>=0; --i) {
-      var n = stack[i]
+    for(let i=stack.length-2; i>=0; --i) {
+      const n = stack[i]
       if(n.left === stack[i+1]) {
         cstack[i] = { ...n, left: cstack[i+1] }
       } else {
@@ -511,20 +511,20 @@ class RedBlackTreeIterator {
       //console.log("moving to leaf")
 
       //First walk to previous leaf
-      var split = cstack.length
+      const split = cstack.length
       n = n.left
       while(n.right) {
         cstack.push(n)
         n = n.right
       }
       //Copy path to leaf
-      var v = cstack[split-1]
+      const v = cstack[split-1]
       cstack.push({ ...n, key: v.key, value: v.value })
       cstack[split-1].key = n.key
       cstack[split-1].value = n.value
 
       //Fix up stack
-      for(var i=cstack.length-2; i>=split; --i) {
+      for(let i=cstack.length-2; i>=split; --i) {
         n = cstack[i]
         cstack[i] = { ...n, right: cstack[i+1] }
       }
@@ -537,14 +537,14 @@ class RedBlackTreeIterator {
     if(n._color === RED) {
       //Easy case: removing red leaf
       //console.log("RED leaf")
-      var p = cstack[cstack.length-2]
+      const p = cstack[cstack.length-2]
       if(p.left === n) {
         p.left = null
       } else if(p.right === n) {
         p.right = null
       }
       cstack.pop()
-      for(var i=0; i<cstack.length; ++i) {
+      for(let i=0; i<cstack.length; ++i) {
         cstack[i]._count--
       }
       return new RedBlackTree(this.tree._compare, cstack[0])
@@ -559,7 +559,7 @@ class RedBlackTreeIterator {
         }
         //Child must be red, so repaint it black to balance color
         n._color = BLACK
-        for(var i=0; i<cstack.length-1; ++i) {
+        for(let i=0; i<cstack.length-1; ++i) {
           cstack[i]._count--
         }
         return new RedBlackTree(this.tree._compare, cstack[0])
@@ -570,10 +570,10 @@ class RedBlackTreeIterator {
       } else {
         //Hard case: Repaint n, and then do some nasty stuff
         //console.log("BLACK leaf no children")
-        for(var i=0; i<cstack.length; ++i) {
+        for(let i=0; i<cstack.length; ++i) {
           cstack[i]._count--
         }
-        var parent = cstack[cstack.length-2]
+        const parent = cstack[cstack.length-2]
         fixDoubleBlack(cstack)
         //Fix up links
         if(parent.left === n) {
@@ -588,11 +588,11 @@ class RedBlackTreeIterator {
 
   //Advances iterator to next element in list
   next() {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       return
     }
-    var n = stack[stack.length-1]
+    let n = stack[stack.length-1]
     if(n.right) {
       n = n.right
       while(n) {
@@ -610,14 +610,14 @@ class RedBlackTreeIterator {
 
   //Checks if iterator is at end of tree
   get hasNext() {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       return false
     }
     if(stack[stack.length-1].right) {
       return true
     }
-    for(var s=stack.length-1; s>0; --s) {
+    for(let s=stack.length-1; s>0; --s) {
       if(stack[s-1].left === stack[s]) {
         return true
       }
@@ -627,14 +627,14 @@ class RedBlackTreeIterator {
 
   //Update value
   update(value) {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       throw new Error("Can't update empty node!")
     }
-    var cstack = new Array(stack.length)
-    var n = stack[stack.length-1]
+    const cstack = new Array(stack.length)
+    let n = stack[stack.length-1]
     cstack[cstack.length-1] = { ...n, value }
-    for(var i=stack.length-2; i>=0; --i) {
+    for(let i=stack.length-2; i>=0; --i) {
       n = stack[i]
       if(n.left === stack[i+1]) {
         cstack[i] = { ...n, left: cstack[i+1] }
@@ -647,11 +647,11 @@ class RedBlackTreeIterator {
 
   //Moves iterator backward one element
   prev() {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       return
     }
-    var n = stack[stack.length-1]
+    let n = stack[stack.length-1]
     if(n.left) {
       n = n.left
       while(n) {
@@ -669,14 +669,14 @@ class RedBlackTreeIterator {
 
   //Checks if iterator is at start of tree
   get hasPrev() {
-    var stack = this._stack
+    const stack = this._stack
     if(stack.length === 0) {
       return false
     }
     if(stack[stack.length-1].left) {
       return true
     }
-    for(var s=stack.length-1; s>0; --s) {
+    for(let s=stack.length-1; s>0; --s) {
       if(stack[s-1].right === stack[s]) {
         return true
       }
@@ -719,10 +719,10 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
   //Returns the position of this iterator in the sorted list
   index: {
     get() {
-      var idx = 0
-      var stack = this._stack
+      let idx = 0
+      const stack = this._stack
       if(stack.length === 0) {
-        var r = this.tree.root
+        const r = this.tree.root
         if(r) {
           return r._count
         }
@@ -730,7 +730,7 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
       } else if(stack[stack.length-1].left) {
         idx = stack[stack.length-1].left._count
       }
-      for(var s=stack.length-2; s>=0; --s) {
+      for(let s=stack.length-2; s>=0; --s) {
         if(stack[s+1] === stack[s].right) {
           ++idx
           if(stack[s].left) {
@@ -746,22 +746,21 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
 
 //Fix up a double black node in a tree
 function fixDoubleBlack(stack) {
-  var n, p, s, z
-  for(var i=stack.length-1; i>=0; --i) {
-    n = stack[i]
+  for(let i=stack.length-1; i>=0; --i) {
+    const n = stack[i]
     if(i === 0) {
       n._color = BLACK
       return
     }
     //console.log("visit node:", n.key, i, stack[i].key, stack[i-1].key)
-    p = stack[i-1]
+    const p = stack[i-1]
     if(p.left === n) {
       //console.log("left child")
-      s = p.right
+      const s = p.right
       if(s.right && s.right._color === RED) {
         //console.log("case 1: right sibling child red")
-        s = p.right = { ...s }
-        z = s.right = { ...s.right }
+        const s = { ...p.right }
+        const z = { ...s.right }
         p.right = s.left
         s.left = p
         s.right = z
@@ -772,7 +771,7 @@ function fixDoubleBlack(stack) {
         recount(p)
         recount(s)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.left === p) {
             pp.left = s
           } else {
@@ -783,8 +782,8 @@ function fixDoubleBlack(stack) {
         return
       } else if(s.left && s.left._color === RED) {
         //console.log("case 1: left sibling child red")
-        s = p.right = { ...s }
-        z = s.left = { ...s.left }
+        const s = { ...p.right }
+        const z = { ...s.left }
         p.right = z.left
         s.left = z.right
         z.left = p
@@ -797,7 +796,7 @@ function fixDoubleBlack(stack) {
         recount(s)
         recount(z)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.left === p) {
             pp.left = z
           } else {
@@ -820,7 +819,7 @@ function fixDoubleBlack(stack) {
         }
       } else {
         //console.log("case 3: red sibling")
-        s = { ...s }
+        const s = { ...p.right }
         p.right = s.left
         s.left = p
         s._color = p._color
@@ -828,7 +827,7 @@ function fixDoubleBlack(stack) {
         recount(p)
         recount(s)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.left === p) {
             pp.left = s
           } else {
@@ -846,11 +845,11 @@ function fixDoubleBlack(stack) {
       }
     } else {
       //console.log("right child")
-      s = p.left
+      const s = p.left
       if(s.left && s.left._color === RED) {
         //console.log("case 1: left sibling child red", p.value, p._color)
-        s = p.left = { ...s }
-        z = s.left = { ...s.left }
+        const s = { ...p.left }
+        const z = { ...s.left }
         p.left = s.right
         s.right = p
         s.left = z
@@ -861,7 +860,7 @@ function fixDoubleBlack(stack) {
         recount(p)
         recount(s)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.right === p) {
             pp.right = s
           } else {
@@ -872,8 +871,8 @@ function fixDoubleBlack(stack) {
         return
       } else if(s.right && s.right._color === RED) {
         //console.log("case 1: right sibling child red")
-        s = p.left = { ...s }
-        z = s.right = { ...s.right }
+        const s = { ...p.left }
+        const z = { ...s.right }
         p.left = z.right
         s.right = z.left
         z.right = p
@@ -886,7 +885,7 @@ function fixDoubleBlack(stack) {
         recount(s)
         recount(z)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.right === p) {
             pp.right = z
           } else {
@@ -909,7 +908,7 @@ function fixDoubleBlack(stack) {
         }
       } else {
         //console.log("case 3: red sibling")
-        s = { ...s }
+        const s = { ...p.left }
         p.left = s.right
         s.right = p
         s._color = p._color
@@ -917,7 +916,7 @@ function fixDoubleBlack(stack) {
         recount(p)
         recount(s)
         if(i > 1) {
-          var pp = stack[i-2]
+          const pp = stack[i-2]
           if(pp.right === p) {
             pp.right = s
           } else {
