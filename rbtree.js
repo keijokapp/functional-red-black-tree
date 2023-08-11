@@ -395,29 +395,18 @@ class RedBlackTree {
 
   //Finds the item with key if it exists
   find(key) {
-    const cmp = this._compare
-    let n = this.root
-    const stack = []
-    let lastPtr = 0
-    while(n) {
-      const d = cmp(key, n.key)
-      stack.push(n)
-      if(d === 0) {
-        lastPtr = stack.length
-      }
-      if(d <= 0) {
-        n = n.left
-      } else {
-        n = n.right
-      }
-    }
-    stack.length = lastPtr
-    return new RedBlackTreeIterator(this, stack)
+    return new RedBlackTreeIterator(this, find(this.root, key, this._compare))
   }
 
   //Removes item with key from tree
   remove(key) {
-    return this.find(key).remove()
+    const stack = find(this.root, key, this._compare)
+
+    if(stack.length) {
+      return new RedBlackTree(this._compare, remove(stack))
+    }
+
+    return this
   }
 
   //Returns the item at `key`
@@ -438,6 +427,26 @@ class RedBlackTree {
     }
     return value
   }
+}
+
+function find(n, key, compare) {
+  const stack = []
+  let lastPtr = 0
+  while(n) {
+    const d = compare(key, n.key)
+    stack.push(n)
+    if(d === 0) {
+      lastPtr = stack.length
+    }
+    if(d <= 0) {
+      n = n.left
+    } else {
+      n = n.right
+    }
+  }
+  stack.length = lastPtr
+
+  return stack
 }
 
 //Visit all nodes inorder
@@ -608,97 +617,11 @@ class RedBlackTreeIterator {
 
   //Removes item at iterator from tree
   remove() {
-    const stack = this._stack
-    if(stack.length === 0) {
-      return this.tree
-    }
-    //First copy path to node
-    const cstack = new Array(stack.length)
-    let n = stack[stack.length - 1]
-    cstack[cstack.length - 1] = { ...n }
-    for(let i = stack.length - 2; i >= 0; --i) {
-      const n = stack[i]
-      if(n.left === stack[i + 1]) {
-        cstack[i] = { ...n, left: cstack[i + 1] }
-      } else {
-        cstack[i] = { ...n, right: cstack[i + 1] }
-      }
+    if(this._stack.length) {
+      return new RedBlackTree(this.tree._compare, remove(this._stack))
     }
 
-    //Get node
-    n = cstack[cstack.length - 1]
-    //console.log("start remove: ", n.value)
-
-    //If not leaf, then swap with previous node
-    if(n.left && n.right) {
-      //console.log("moving to leaf")
-
-      //First walk to previous leaf
-      const split = cstack.length
-      n = n.left
-      while(n.right) {
-        cstack.push(n)
-        n = n.right
-      }
-      //Copy path to leaf
-      const v = cstack[split - 1]
-      cstack.push({ ...n, key: v.key, value: v.value })
-      cstack[split - 1].key = n.key
-      cstack[split - 1].value = n.value
-
-      //Fix up stack
-      for(let i = cstack.length - 2; i >= split; --i) {
-        n = cstack[i]
-        cstack[i] = { ...n, right: cstack[i + 1] }
-      }
-      cstack[split - 1].left = cstack[split]
-    }
-    //console.log("stack=", cstack.map(function(v) { return v.value }))
-
-    //Remove leaf node
-    n = cstack[cstack.length - 1]
-    if(n._color === RED) {
-      //Easy case: removing red leaf
-      //console.log("RED leaf")
-      const p = cstack[cstack.length - 2]
-      if(p.left === n) {
-        p.left = undefined
-      } else if(p.right === n) {
-        p.right = undefined
-      }
-      cstack.pop()
-      for(let i = 0; i < cstack.length; ++i) {
-        cstack[i]._count--
-      }
-    } else if(n.left || n.right) {
-      //Second easy case:  Single child black parent
-      //console.log("BLACK single child")
-      Object.assign(n, n.left ?? n.right)
-      //Child must be red, so repaint it black to balance color
-      n._color = BLACK
-      for(let i = 0; i < cstack.length - 1; ++i) {
-        cstack[i]._count--
-      }
-    } else if(cstack.length === 1) {
-      //Third easy case: root
-      //console.log("ROOT")
-      cstack.pop()
-    } else {
-      //Hard case: Repaint n, and then do some nasty stuff
-      //console.log("BLACK leaf no children")
-      for(let i = 0; i < cstack.length; ++i) {
-        cstack[i]._count--
-      }
-      const parent = cstack[cstack.length - 2]
-      fixDoubleBlack(cstack)
-      //Fix up links
-      if(parent.left === n) {
-        parent.left = undefined
-      } else {
-        parent.right = undefined
-      }
-    }
-    return new RedBlackTree(this.tree._compare, cstack[0])
+    return this.tree
   }
 
   //Advances iterator to next element in list
@@ -856,6 +779,108 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
     enumerable: true
   }
 })
+
+function remove(stack) {
+  // First copy path to node
+  const cstack = new Array(stack.length)
+  cstack[cstack.length - 1] = { ...stack[stack.length - 1] }
+
+  for(let i = stack.length - 2; i >= 0; --i) {
+    const n = stack[i]
+
+    if(n.left === stack[i + 1]) {
+      cstack[i] = { ...n, left: cstack[i + 1] }
+    } else {
+      cstack[i] = { ...n, right: cstack[i + 1] }
+    }
+  }
+
+  let n = cstack[cstack.length - 1]
+
+  // If not leaf, then swap with previous node
+  if(n.left && n.right) {
+    // First walk to previous leaf
+    const split = cstack.length
+    const v = n
+
+    for(n = n.left; n.right; n = n.right) {
+      cstack.push(n)
+    }
+
+    // Copy path to leaf
+    cstack.push({ ...n, key: v.key, value: v.value })
+    v.key = n.key
+    v.value = n.value
+
+    // Fix up stack
+    for(let i = cstack.length - 2; i >= split; --i) {
+      cstack[i] = { ...cstack[i], right: cstack[i + 1] }
+    }
+
+    v.left = cstack[split]
+
+    n = cstack[cstack.length - 1]
+  }
+
+  // Remove leaf node
+
+  if(n._color === RED) {
+    // Easy case: removing red leaf
+    const p = cstack[cstack.length - 2]
+    if(p.left === n) {
+      p.left = null
+    } else if(p.right === n) {
+      p.right = null
+    }
+
+    for(let i = 0; i < cstack.length - 1; ++i) {
+      cstack[i]._count--
+    }
+
+    return cstack[0]
+  }
+
+  if(n.left || n.right) {
+    // Second easy case:  Single child black parent
+    // console.log("BLACK single child")
+    if(n.left) {
+      Object.assign(n, n.left)
+    } else if(n.right) {
+      Object.assign(n, n.right)
+    }
+    // Child must be red, so repaint it black to balance color
+    n._color = BLACK
+    for(let i = 0; i < cstack.length - 1; ++i) {
+      cstack[i]._count--
+    }
+
+    return cstack[0]
+  }
+
+  if(cstack.length === 1) {
+    // Third easy case: root
+    // console.log("ROOT")
+    return
+  }
+
+  // Hard case: Repaint n, and then do some nasty stuff
+  // console.log("BLACK leaf no children")
+  for(let i = 0; i < cstack.length; ++i) {
+    cstack[i]._count--
+  }
+
+  const parent = cstack[cstack.length - 2]
+  fixDoubleBlack(cstack)
+
+  // Fix up links
+  if(parent.left === n) {
+    parent.left = null
+  } else {
+    parent.right = null
+  }
+
+  return cstack[0]
+}
 
 //Fix up a double black node in a tree
 function fixDoubleBlack(stack) {
