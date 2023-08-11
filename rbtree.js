@@ -43,11 +43,9 @@ class RedBlackTree {
   insert(key, value) {
     const cmp = this._compare
     //Find point to insert new node at
-    let n = this.root
     const nStack = []
     const dStack = []
-
-    while(n) {
+    for(let n = this.root; n;) {
       const d = cmp(key, n.key)
       nStack.push(n)
       dStack.push(d)
