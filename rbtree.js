@@ -62,8 +62,8 @@ class RedBlackTree {
       _color: RED,
       key,
       value,
-      left: null,
-      right: null,
+      left: undefined,
+      right: undefined,
       _count: 1
     })
     for(let s = nStack.length - 2; s >= 0; --s) {
@@ -521,9 +521,9 @@ class RedBlackTreeIterator {
       //console.log("RED leaf")
       const p = cstack[cstack.length - 2]
       if(p.left === n) {
-        p.left = null
+        p.left = undefined
       } else if(p.right === n) {
-        p.right = null
+        p.right = undefined
       }
       cstack.pop()
       for(let i = 0; i < cstack.length; ++i) {
@@ -532,11 +532,7 @@ class RedBlackTreeIterator {
     } else if(n.left || n.right) {
       //Second easy case:  Single child black parent
       //console.log("BLACK single child")
-      if(n.left) {
-        Object.assign(n, n.left)
-      } else if(n.right) {
-        Object.assign(n, n.right)
-      }
+      Object.assign(n, n.left ?? n.right)
       //Child must be red, so repaint it black to balance color
       n._color = BLACK
       for(let i = 0; i < cstack.length - 1; ++i) {
@@ -545,7 +541,7 @@ class RedBlackTreeIterator {
     } else if(cstack.length === 1) {
       //Third easy case: root
       //console.log("ROOT")
-      return new RedBlackTree(this.tree._compare, null)
+      cstack.pop()
     } else {
       //Hard case: Repaint n, and then do some nasty stuff
       //console.log("BLACK leaf no children")
@@ -556,9 +552,9 @@ class RedBlackTreeIterator {
       fixDoubleBlack(cstack)
       //Fix up links
       if(parent.left === n) {
-        parent.left = null
+        parent.left = undefined
       } else {
-        parent.right = null
+        parent.right = undefined
       }
     }
     return new RedBlackTree(this.tree._compare, cstack[0])
@@ -670,7 +666,6 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
       if(this._stack.length > 0) {
         return this._stack[this._stack.length - 1]
       }
-      return null
     },
     enumerable: true
   },
@@ -680,7 +675,6 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
       if(this._stack.length > 0) {
         return this._stack[this._stack.length - 1].key
       }
-      return null
     },
     enumerable: true
   },
@@ -927,5 +921,5 @@ function defaultCompare(a, b) {
 
 //Build a tree
 function createRBTree(compare) {
-  return new RedBlackTree(compare || defaultCompare, null)
+  return new RedBlackTree(compare ?? defaultCompare)
 }
