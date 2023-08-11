@@ -1,5 +1,7 @@
 "use strict"
 
+const assert = require("assert")
+
 module.exports = createRBTree
 
 const RED = 0
@@ -37,6 +39,45 @@ class RedBlackTree {
       return this.root._count
     }
     return 0
+  }
+
+  * entries() {
+    if(this.root) {
+      for(const node of iterator(this.root)) {
+        yield [node.key, node.value]
+      }
+    }
+  }
+
+  * forwardIterator(key, inclusive, offset) {
+    if(this.root) {
+      const it = forwardIterator(
+        key,
+        offset,
+        this.root,
+        inclusive
+          ? (a, b) => this._compare(a, b) > 0
+          : (a, b) => this._compare(a, b) >= 0
+      )
+
+      const { value: node } = it.next()
+
+      if(typeof node === "object") {
+        if(offset > 0) {
+          offset--
+        } else {
+          yield [node.key, node.value]
+        }
+      }
+
+      for(const node of it) {
+        if(offset > 0) {
+          offset--
+        } else {
+          yield [node.key, node.value]
+        }
+      }
+    }
   }
 
   //Insert a new item into the tree
@@ -444,6 +485,108 @@ function doVisit(lo, hi, compare, visit, node) {
   }
   if(h > 0 && node.right) {
     return doVisit(lo, hi, compare, visit, node.right)
+  }
+}
+
+function* negativeOffsetIterator(n, offset) {
+  assert(offset < 0)
+
+  if(!n) {
+    yield offset
+  } else if(-offset === n._count) {
+    yield* iterator(n)
+  } else if(-offset > n._count) {
+    yield offset + n._count
+
+    yield* iterator(n)
+  } else if(n.right) {
+    if(-offset === n.right._count + 1) {
+      yield n
+      yield* iterator(n.right)
+    } else if(-offset > n.right._count + 1) {
+      yield* negativeOffsetIterator(n.left, offset + n.right._count + 1)
+      yield n
+      yield* iterator(n.right)
+    } else {
+      yield* negativeOffsetIterator(n.right, offset)
+    }
+  } else {
+    if(offset < -1) {
+      yield* negativeOffsetIterator(n.left, offset + 1)
+    }
+    yield n
+  }
+}
+
+function* forwardIterator(key, offset, n, test) {
+  if(test(n.key, key)) {
+    if(n.left) {
+      yield* forwardIterator(key, offset, n.left, test)
+    } else {
+      yield
+    }
+
+    yield n
+
+    if(n.right) {
+      yield* iterator(n.right)
+    }
+  } else if(n.right) {
+    const it = forwardIterator(key, offset, n.right, test)
+    const { done, value } = it.next()
+
+    assert.strictEqual(done, false)
+
+    if(Number.isInteger(value)) {
+      const offset = value
+
+      // found the node <=key closest to the key in the right branch
+      // but we need to count backward because of the offset
+
+      if(offset < -1) {
+        yield* negativeOffsetIterator(n.left, offset + 1)
+      }
+
+      yield n
+    } else if(value) {
+      // found the node <=key closest to the key in the right branch
+      yield value
+    } else {
+      // there's wasn't a node <=key closer the key in the right branch
+      // so current node has to be the closest one
+
+      if(offset < 0) {
+        yield* negativeOffsetIterator(n.left, offset)
+      }
+
+      yield n
+    }
+
+    yield* it
+  } else {
+    // there isn't a right branch so this one has to be the closest node <=key
+
+    if(offset < 0) {
+      yield* negativeOffsetIterator(n.left, offset)
+    }
+
+    yield n
+
+    if(n.right) {
+      yield* iterator(n.right)
+    }
+  }
+}
+
+function* iterator(node) {
+  if(node.left) {
+    yield* iterator(node.left)
+  }
+
+  yield node
+
+  if(node.right) {
+    yield* iterator(node.right)
   }
 }
 
