@@ -7,10 +7,13 @@
     "test": "test"
   },
   "devDependencies": {
+    "@arbendium/eslint-config-base": "^2.2.0",
+    "eslint": "^9.39.5",
     "iota-array": "^1.0.0",
     "tape": "^5.10.2"
   },
   "scripts": {
+    "lint": "eslint bench test eslint.config.mjs rbtree.js",
     "test": "tape test/*.js"
   },
   "repository": {
