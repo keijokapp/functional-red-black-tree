@@ -9,13 +9,17 @@
   },
   "devDependencies": {
     "@arbendium/eslint-config-base": "^2.2.0",
+    "@types/node": "^22.20.3",
     "eslint": "^9.39.5",
     "iota-array": "^1.0.0",
-    "tape": "^5.10.2"
+    "tape": "^5.10.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0"
   },
   "scripts": {
     "lint": "eslint bench test eslint.config.js rbtree.js",
-    "test": "tape test/*.js"
+    "test": "tape test/*.js",
+    "typecheck": "tsc"
   },
   "repository": {
     "type": "git",

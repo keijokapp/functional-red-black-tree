@@ -1,5 +1,10 @@
 import createTree from '../rbtree.js'
 
+/**
+ * @import { Tree } from '../rbtree.js'
+ */
+
+/** @type {Tree<number, number>} */
 let t = createTree()
 
 const s = Date.now()

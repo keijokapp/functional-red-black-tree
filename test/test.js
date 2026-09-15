@@ -3,8 +3,18 @@ import util from 'util'
 import iota from 'iota-array'
 import makeTree from '../rbtree.js'
 
+/**
+ * @import { Test } from 'tape'
+ * @import { Node, Tree, TreeIterator } from '../rbtree.js'
+ */
+
 const COLORS = ['r', 'b', 'bb']
 
+/**
+ * @template K, V
+ * @param {Node<K, V> | undefined} tree
+ * @returns {unknown[]}
+ */
 function printTree(tree) {
   if (!tree) {
     return []
@@ -13,12 +23,22 @@ function printTree(tree) {
   return [COLORS[tree._color], tree.key, printTree(tree.left), printTree(tree.right)]
 }
 
+/**
+ * @template K, V
+ * @param {Tree<K, V>} t
+ */
 // eslint-disable-next-line no-unused-vars
 function print(t) {
   console.log(util.inspect(printTree(t.root), { depth: 12 }))
 }
 
-// Ensures the red black axioms are satisfied by tree
+/**
+ * Ensures the red black axioms are satisfied by tree
+ *
+ * @template K, V
+ * @param {Tree<K, V>} tree
+ * @param {Test} t
+ */
 function checkTree(tree, t) {
   if (!tree.root) {
     return
@@ -26,6 +46,10 @@ function checkTree(tree, t) {
 
   t.equals(tree.root._color, 1, 'root is black')
 
+  /**
+   * @param {Node<K, V> | undefined} node
+   * @returns {[number, number]}
+   */
   function checkNode(node) {
     if (!node) {
       return [1, 0]
@@ -59,9 +83,11 @@ function checkTree(tree, t) {
 }
 
 tape('insert()', t => {
+  /** @type {Tree<number, boolean>} */
   const t1 = makeTree()
 
   let u = t1
+  /** @type {number[]} */
   const arr = []
 
   for (let i = 20; i >= 0; --i) {
@@ -117,7 +143,9 @@ tape('foreach', t => {
   const u = iota(31).reduce((u, k, v) => u.insert(k, v), makeTree())
 
   // Check basic foreach
+  /** @type {number[]} */
   let visitKeys = []
+  /** @type {number[]} */
   let visitVals = []
   u.forEach((k, v) => {
     visitKeys.push(k)
@@ -191,6 +219,12 @@ tape('foreach', t => {
   t.end()
 })
 
+/**
+ * @template K, V
+ * @param {TreeIterator<K, V>} a
+ * @param {TreeIterator<K, V>} b
+ * @param {Test} t
+ */
 function compareIterators(a, b, t) {
   t.equals(a.tree, b.tree, 'iter trees')
   t.equals(a.valid, b.valid, 'iter validity')

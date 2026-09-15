@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"checkJs": true,
+		"exactOptionalPropertyTypes": true,
+		"lib": ["esnext"],
+		"module": "nodenext",
+		"noEmit": true,
+		"strict": true,
+		"types": ["node"],
+	},
+	"include": [
+		"bench/*.js",
+		"test/*.js",
+		"*.js",
+	]
+}

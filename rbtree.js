@@ -5,13 +5,21 @@ function recount(node) {
   node._count = 1 + (node.left ? node.left._count : 0) + (node.right ? node.right._count : 0)
 }
 
+/**
+ * @template K, V
+ */
 class RedBlackTree {
+  /**
+   * @param {Compare<K>} compare
+   * @param {Node<K, V>} [root]
+   */
   constructor(compare, root) {
     this._compare = compare
     this.root = root
   }
 
   get keys() {
+    /** @type {K[]} */
     const result = []
     this.forEach(k => {
       result.push(k)
@@ -21,6 +29,7 @@ class RedBlackTree {
   }
 
   get values() {
+    /** @type {V[]} */
     const result = []
     this.forEach((k, v) => {
       result.push(v)
@@ -38,11 +47,18 @@ class RedBlackTree {
     return 0
   }
 
-  // Insert a new item into the tree
+  /**
+   * Insert a new item into the tree
+   *
+   * @param {K} key
+   * @param {V} value
+   */
   insert(key, value) {
     const cmp = this._compare
     // Find point to insert new node at
+    /** @type {Node<K, V>[]} */
     const nStack = []
+    /** @type {number[]} */
     const dStack = []
 
     for (let n = this.root; n;) {
@@ -252,6 +268,7 @@ class RedBlackTree {
 
   // First item in list
   get begin() {
+    /** @type {Node<K, V>[]} */
     const stack = []
     let n = this.root
 
@@ -265,6 +282,7 @@ class RedBlackTree {
 
   // Last item in list
   get end() {
+    /** @type {Node<K, V>[]} */
     const stack = []
     let n = this.root
 
@@ -276,13 +294,18 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
-  // Find the ith item in the tree
+  /**
+   * Find the ith item in the tree
+   *
+   * @param {number} idx
+   */
   at(idx) {
     if (idx < 0) {
       return new RedBlackTreeIterator(this, [])
     }
 
-    let n = this.root
+    let n = /** @type {Node<K, V>} */ (this.root)
+    /** @type {Node<K, V>[]} */
     const stack = []
 
     for (;;) {
@@ -317,9 +340,13 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, [])
   }
 
+  /**
+   * @param {K} key
+   */
   ge(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {Node<K, V>[]} */
     const stack = []
     let lastPtr = 0
 
@@ -340,9 +367,13 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
+  /**
+   * @param {K} key
+   */
   gt(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {Node<K, V>[]} */
     const stack = []
     let lastPtr = 0
 
@@ -363,9 +394,13 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
+  /**
+   * @param {K} key
+   */
   lt(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {Node<K, V>[]} */
     const stack = []
     let lastPtr = 0
 
@@ -386,9 +421,13 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
+  /**
+   * @param {K} key
+   */
   le(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {Node<K, V>[]} */
     const stack = []
     let lastPtr = 0
 
@@ -409,10 +448,15 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
-  // Finds the item with key if it exists
+  /**
+   * Finds the item with key if it exists
+   *
+   * @param {K} key
+   */
   find(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {Node<K, V>[]} */
     const stack = []
     let lastPtr = 0
 
@@ -436,15 +480,25 @@ class RedBlackTree {
     return new RedBlackTreeIterator(this, stack)
   }
 
-  // Removes item with key from tree
+  /**
+   * Removes item with key from tree
+   *
+   * @param {K} key
+   */
   remove(key) {
     return this.find(key).remove()
   }
 
-  // Returns the item at `key`
+  /**
+   * Returns the item at `key`
+   *
+   * @param {K} key
+   * @returns {V | undefined}
+   */
   get(key) {
     const cmp = this._compare
     let n = this.root
+    /** @type {V | undefined} */
     let value
 
     while (n) {
@@ -465,7 +519,14 @@ class RedBlackTree {
   }
 }
 
-// Visit all nodes inorder
+/**
+ * Visit all nodes inorder
+ *
+ * @template K, V, T
+ * @param {(key: K, value: V) => T} visit
+ * @param {Node<K, V>} node
+ * @returns {T | undefined}
+ */
 function doVisitFull(visit, node) {
   if (node.left) {
     const v = doVisitFull(visit, node.left)
@@ -486,7 +547,16 @@ function doVisitFull(visit, node) {
   }
 }
 
-// Visit half nodes in order
+/**
+ * Visit half nodes in order
+ *
+ * @template K, V, T
+ * @param {K} lo
+ * @param {Compare<K>} compare
+ * @param {(key: K, value: V) => T} visit
+ * @param {Node<K, V>} node
+ * @returns {T | undefined}
+ */
 function doVisitHalf(lo, compare, visit, node) {
   const l = compare(lo, node.key)
 
@@ -511,7 +581,17 @@ function doVisitHalf(lo, compare, visit, node) {
   }
 }
 
-// Visit all nodes within a range
+/**
+ * Visit all nodes within a range
+ *
+ * @template K, V, T
+ * @param {K} lo
+ * @param {K} hi
+ * @param {Compare<K>} compare
+ * @param {(key: K, value: V) => T} visit
+ * @param {Node<K, V>} node
+ * @returns {T | undefined}
+ */
 function doVisit(lo, hi, compare, visit, node) {
   const l = compare(lo, node.key)
   const h = compare(hi, node.key)
@@ -539,8 +619,16 @@ function doVisit(lo, hi, compare, visit, node) {
   }
 }
 
-// Iterator for red black tree
+/**
+ * Iterator for red black tree
+ *
+ * @template K, V
+ */
 class RedBlackTreeIterator {
+  /**
+   * @param {RedBlackTree<K, V>} tree
+   * @param {Node<K, V>[]} stack
+   */
   constructor(tree, stack) {
     this.tree = tree
     this._stack = stack
@@ -564,6 +652,7 @@ class RedBlackTreeIterator {
     }
 
     // First copy path to node
+    /** @type {Node<K, V>[]} */
     const cstack = new Array(stack.length)
     let n = stack[stack.length - 1]
     cstack[cstack.length - 1] = { ...n }
@@ -673,6 +762,7 @@ class RedBlackTreeIterator {
       return
     }
 
+    /** @type {Node<K, V> | undefined} */
     let n = stack[stack.length - 1]
 
     if (n.right) {
@@ -713,7 +803,11 @@ class RedBlackTreeIterator {
     return false
   }
 
-  // Update value
+  /**
+   * Update value
+   *
+   * @param {V} value
+   */
   update(value) {
     const stack = this._stack
 
@@ -721,6 +815,7 @@ class RedBlackTreeIterator {
       throw new Error('Can\'t update empty node!')
     }
 
+    /** @type {Node<K, V>[]} */
     const cstack = new Array(stack.length)
     let n = stack[stack.length - 1]
     cstack[cstack.length - 1] = { ...n, value }
@@ -746,6 +841,7 @@ class RedBlackTreeIterator {
       return
     }
 
+    /** @type {Node<K, V> | undefined} */
     let n = stack[stack.length - 1]
 
     if (n.left) {
@@ -851,7 +947,12 @@ Object.defineProperties(RedBlackTreeIterator.prototype, {
   },
 })
 
-// Fix up a double black node in a tree
+/**
+ * Fix up a double black node in a tree
+ *
+ * @template K, V
+ * @param {Node<K, V>[]} stack
+ */
 function fixDoubleBlack(stack) {
   for (let i = stack.length - 1; i > 0; --i) {
     const n = stack[i]
@@ -861,12 +962,12 @@ function fixDoubleBlack(stack) {
 
     if (p.left === n) {
       // console.log("left child")
-      const s = p.right
+      const s = /** @type {Node<K, V>} */ (p.right)
 
       if (s.right?._color === RED) {
         // console.log("case 1: right sibling child red")
-        const s = { ...p.right }
-        const z = { ...s.right }
+        const s = /** @type {Node<K, V>} */ ({ ...p.right })
+        const z = /** @type {Node<K, V>} */ ({ ...s.right })
         p.right = s.left
         s.left = p
         s.right = z
@@ -894,8 +995,8 @@ function fixDoubleBlack(stack) {
 
       if (s.left?._color === RED) {
         // console.log("case 1: left sibling child red")
-        const s = { ...p.right }
-        const z = { ...s.left }
+        const s = /** @type {Node<K, V>} */ ({ ...p.right })
+        const z = /** @type {Node<K, V>} */ ({ ...s.left })
         p.right = z.left
         s.left = z.right
         z.left = p
@@ -936,7 +1037,7 @@ function fixDoubleBlack(stack) {
         p.right = { ...s, _color: RED }
       } else {
         // console.log("case 3: red sibling")
-        const s = { ...p.right }
+        const s = /** @type {Node<K, V>} */ ({ ...p.right })
         p.right = s.left
         s.left = p
         s._color = p._color
@@ -967,12 +1068,12 @@ function fixDoubleBlack(stack) {
       }
     } else {
       // console.log("right child")
-      const s = p.left
+      const s = /** @type {Node<K, V>} */ (p.left)
 
       if (s.left?._color === RED) {
         // console.log("case 1: left sibling child red", p.value, p._color)
-        const s = { ...p.left }
-        const z = { ...s.left }
+        const s = /** @type {Node<K, V>} */ ({ ...p.left })
+        const z = /** @type {Node<K, V>} */ ({ ...s.left })
         p.left = s.right
         s.right = p
         s.left = z
@@ -1000,8 +1101,8 @@ function fixDoubleBlack(stack) {
 
       if (s.right?._color === RED) {
         // console.log("case 1: right sibling child red")
-        const s = { ...p.left }
-        const z = { ...s.right }
+        const s = /** @type {Node<K, V>} */ ({ ...p.left })
+        const z = /** @type {Node<K, V>} */ ({ ...s.right })
         p.left = z.right
         s.right = z.left
         z.right = p
@@ -1041,7 +1142,7 @@ function fixDoubleBlack(stack) {
         p.left = { ...s, _color: RED }
       } else {
         // console.log("case 3: red sibling")
-        const s = { ...p.left }
+        const s = /** @type {Node<K, V>} */ ({ ...p.left })
         p.left = s.right
         s.right = p
         s._color = p._color
@@ -1076,7 +1177,13 @@ function fixDoubleBlack(stack) {
   stack[0]._color = BLACK
 }
 
-// Default comparison function
+/**
+ * Default comparison function
+ *
+ * @param {any} a
+ * @param {any} b
+ * @returns {number}
+ */
 function defaultCompare(a, b) {
   if (a < b) {
     return -1
@@ -1089,7 +1196,13 @@ function defaultCompare(a, b) {
   return 0
 }
 
-// Build a tree
+/**
+ * Build a tree
+ *
+ * @template K, V
+ * @param {Compare<K>} [compare]
+ * @returns {Tree<K, V>}
+ */
 export default function createRBTree(compare) {
   return new RedBlackTree(compare ?? defaultCompare)
 }
