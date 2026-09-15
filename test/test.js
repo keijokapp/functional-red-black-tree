@@ -1,11 +1,11 @@
 'use strict'
 
-var tape = require('tape')
-var util = require('util')
-var iota = require('iota-array')
-var makeTree = require('../rbtree.js')
+const tape = require('tape')
+const util = require('util')
+const iota = require('iota-array')
+const makeTree = require('../rbtree.js')
 
-var COLORS = ['r', 'b', 'bb']
+const COLORS = ['r', 'b', 'bb']
 
 function printTree(tree) {
   if (!tree) {
@@ -48,27 +48,27 @@ function checkTree(tree, t) {
       t.assert(tree._compare(node.right.key, node.key) >= 0, 'right tree order invariant')
     }
 
-    var cl = checkNode(node.left)
-    var cr = checkNode(node.right)
+    const cl = checkNode(node.left)
+    const cr = checkNode(node.right)
     t.equals(cl[0], cr[0], 'number of black nodes along all paths to root must be constant')
     t.equals(cl[1] + cr[1] + 1, node._count, 'item count consistency')
 
     return [cl[0] + node._color, cl[1] + cr[1] + 1]
   }
 
-  var r = checkNode(tree.root)
+  const r = checkNode(tree.root)
   t.equals(r[1], tree.length, 'tree length')
 }
 
 tape('insert()', t => {
-  var t1 = makeTree()
+  const t1 = makeTree()
 
-  var u = t1
-  var arr = []
+  let u = t1
+  const arr = []
 
-  for (var i = 20; i >= 0; --i) {
-    var x = i
-    var next = u.insert(x, true)
+  for (let i = 20; i >= 0; --i) {
+    const x = i
+    const next = u.insert(x, true)
     checkTree(u, t)
     checkTree(next, t)
     t.equals(u.length, arr.length)
@@ -76,14 +76,13 @@ tape('insert()', t => {
     u = next
   }
 
-  for (var i = -20; i < 0; ++i) {
-    var x = i
-    var next = u.insert(x, true)
+  for (let i = -20; i < 0; ++i) {
+    const x = i
+    const next = u.insert(x, true)
     checkTree(u, t)
     checkTree(next, t)
     arr.sort((a, b) => a - b)
-    var ptr = 0
-    // eslint-disable-next-line no-loop-func
+    let ptr = 0
     u.forEach(k => {
       t.equals(k, arr[ptr++])
     })
@@ -92,9 +91,9 @@ tape('insert()', t => {
     u = next
   }
 
-  var start = u.begin
+  const start = u.begin
 
-  for (var i = -20, j = 0; j <= 40; ++i, ++j) {
+  for (let i = -20, j = 0; j <= 40; ++i, ++j) {
     t.equals(u.at(j).key, i, 'checking at()')
     t.equals(start.key, i, 'checking iter')
     t.equals(start.index, j, 'checking index')
@@ -117,11 +116,11 @@ tape('insert()', t => {
 })
 
 tape('foreach', t => {
-  var u = iota(31).reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = iota(31).reduce((u, k, v) => u.insert(k, v), makeTree())
 
   // Check basic foreach
-  var visit_keys = []
-  var visit_vals = []
+  let visit_keys = []
+  let visit_vals = []
   u.forEach((k, v) => {
     visit_keys.push(k)
     visit_vals.push(v)
@@ -209,16 +208,16 @@ function compareIterators(a, b, t) {
 }
 
 tape('iterators', t => {
-  var u = iota(20).reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = iota(20).reduce((u, k, v) => u.insert(k, v), makeTree())
 
   // Try walking forward
-  var iter = u.begin
-  var c = iter.clone()
+  let iter = u.begin
+  const c = iter.clone()
   t.ok(iter.hasNext, 'must have next at beginneing')
   t.ok(!iter.hasPrev, 'must not have predecessor')
 
-  for (var i = 0; i < 20; ++i) {
-    var v = u.at(i)
+  for (let i = 0; i < 20; ++i) {
+    const v = u.at(i)
     compareIterators(iter, v, t)
     t.equals(iter.index, i)
     iter.next()
@@ -230,12 +229,12 @@ tape('iterators', t => {
   compareIterators(c, u.begin, t)
 
   // Try walking backward
-  var iter = u.end
+  iter = u.end
   t.ok(!iter.hasNext, 'must not have next')
   t.ok(iter.hasPrev, 'must have predecessor')
 
-  for (var i = 19; i >= 0; --i) {
-    var v = u.at(i)
+  for (let i = 19; i >= 0; --i) {
+    const v = u.at(i)
     compareIterators(iter, v, t)
     t.equals(iter.index, i)
     iter.prev()
@@ -247,13 +246,13 @@ tape('iterators', t => {
 })
 
 tape('remove()', t => {
-  var sz = [1, 2, 10, 20, 23, 31, 32, 33]
+  const sz = [1, 2, 10, 20, 23, 31, 32, 33]
 
-  for (var n = 0; n < sz.length; ++n) {
-    var c = sz[n]
-    var u = iota(c).reduce((u, k, v) => u.insert(k, v), makeTree())
+  for (let n = 0; n < sz.length; ++n) {
+    const c = sz[n]
+    const u = iota(c).reduce((u, k, v) => u.insert(k, v), makeTree())
 
-    for (var i = 0; i < c; ++i) {
+    for (let i = 0; i < c; ++i) {
       checkTree(u.remove(i), t)
     }
   }
@@ -262,11 +261,11 @@ tape('remove()', t => {
 })
 
 tape('update()', t => {
-  var arr = [0, 1, 2, 3, 4, 5, 6]
-  var u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
+  const arr = [0, 1, 2, 3, 4, 5, 6]
+  const u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
 
-  for (var iter = u.begin; iter.hasNext; iter.next()) {
-    var updated = iter.update(1000)
+  for (let iter = u.begin; iter.hasNext; iter.next()) {
+    const updated = iter.update(1000)
     t.equals(iter.value, iter.key, 'ensure no mutation')
     t.equals(updated.find(iter.key).value, 1000, 'ensure update applied')
     checkTree(updated, t)
@@ -277,16 +276,16 @@ tape('update()', t => {
 })
 
 tape('keys and values', t => {
-  var original_keys = ['potato', 'sock', 'foot', 'apple', 'newspaper', 'gameboy']
-  var original_values = [42, 10, false, '!!!', {}, null]
+  const original_keys = ['potato', 'sock', 'foot', 'apple', 'newspaper', 'gameboy']
+  const original_values = [42, 10, false, '!!!', {}, null]
 
-  var u = makeTree()
+  let u = makeTree()
 
-  for (var i = 0; i < original_keys.length; ++i) {
+  for (let i = 0; i < original_keys.length; ++i) {
     u = u.insert(original_keys[i], original_values[i])
   }
 
-  var zipped = iota(6).map(i => [original_keys[i], original_values[i]])
+  const zipped = iota(6).map(i => [original_keys[i], original_values[i]])
 
   zipped.sort((a, b) => {
     if (a[0] < b[0]) {
@@ -300,8 +299,8 @@ tape('keys and values', t => {
     return 0
   })
 
-  var keys = zipped.map(v => v[0])
-  var values = zipped.map(v => v[1])
+  const keys = zipped.map(v => v[0])
+  const values = zipped.map(v => v[1])
 
   t.same(u.keys, keys)
   t.same(u.values, values)
@@ -310,10 +309,10 @@ tape('keys and values', t => {
 })
 
 tape('searching', t => {
-  var arr = [0, 1, 1, 1, 1, 2, 3, 4, 5, 6, 6]
-  var u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
+  const arr = [0, 1, 1, 1, 1, 2, 3, 4, 5, 6, 6]
+  const u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
 
-  for (var i = 0; i < arr.length; ++i) {
+  for (let i = 0; i < arr.length; ++i) {
     if (arr[i] !== arr[i - 1] && arr[i] !== arr[i + 1]) {
       t.equals(u.get(arr[i]), i, `get ${arr[i]}`)
     }
@@ -363,11 +362,11 @@ tape('searching', t => {
   t.ok(u.find(1).index > 0, 'find repeat')
   t.ok(u.find(1).index < 5, 'find repeat')
 
-  for (var i = 0; i < arr.length; ++i) {
+  for (let i = 0; i < arr.length; ++i) {
     t.equals(u.find(arr[i]).key, arr[i], `find ${i}`)
   }
 
-  for (var i = 0; i < arr.length; ++i) {
+  for (let i = 0; i < arr.length; ++i) {
     t.equals(u.at(i).key, arr[i], `at ${i}`)
   }
 
@@ -378,7 +377,7 @@ tape('searching', t => {
 })
 
 tape('slab-sequence', t => {
-  var tree = makeTree()
+  let tree = makeTree()
 
   tree = tree.insert(0, 0)
   checkTree(tree, t)
@@ -424,7 +423,7 @@ tape('slab-sequence', t => {
 })
 
 tape('slab-sequence-2', t => {
-  var u = makeTree()
+  let u = makeTree()
 
   u = u.insert(12, 22)
   u = u.insert(11, 3)
