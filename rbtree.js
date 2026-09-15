@@ -1,6 +1,39 @@
 const RED = 0
 const BLACK = 1
 
+/**
+ * @template K, V
+ * @typedef {object} Node
+ * @property {typeof RED | typeof BLACK} _color
+ * @property {K} key
+ * @property {V} value
+ * @property {Node<K, V> | undefined} left
+ * @property {Node<K, V> | undefined} right
+ * @property {number} _count
+ */
+
+/**
+ * @template K, V
+ * @typedef {RedBlackTree<K, V>} Tree
+ */
+
+/**
+ * @template K, V
+ * @typedef {RedBlackTreeIterator<K, V>} TreeIterator
+ */
+
+/**
+ * @template K
+ * @callback Compare
+ * @param {K} a
+ * @param {K} b
+ * @returns {number}
+ */
+
+/**
+ * @template K, V
+ * @param {Node<K, V>} node
+ */
 function recount(node) {
   node._count = 1 + (node.left ? node.left._count : 0) + (node.right ? node.right._count : 0)
 }
@@ -250,6 +283,13 @@ class RedBlackTree {
     return new RedBlackTree(cmp, nStack[0])
   }
 
+  /**
+   * @template T
+   * @param {(key: K, value: V) => T} visit
+   * @param {K} [lo]
+   * @param {K} [hi]
+   * @returns {T | undefined}
+   */
   forEach(visit, lo, hi) {
     if (!this.root) {
       return
@@ -257,11 +297,17 @@ class RedBlackTree {
 
     switch (arguments.length) {
       case 1: return doVisitFull(visit, this.root)
-      case 2: return doVisitHalf(lo, this._compare, visit, this.root)
+      case 2: return doVisitHalf(/** @type {K} */ (lo), this._compare, visit, this.root)
 
       case 3:
-        if (this._compare(lo, hi) < 0) {
-          return doVisit(lo, hi, this._compare, visit, this.root)
+        if (this._compare(/** @type {K} */ (lo), /** @type {K} */ (hi)) < 0) {
+          return doVisit(
+            /** @type {K} */ (lo),
+            /** @type {K} */ (hi),
+            this._compare,
+            visit,
+            this.root,
+          )
         }
     }
   }
@@ -881,71 +927,64 @@ class RedBlackTreeIterator {
 
     return false
   }
-}
 
-Object.defineProperties(RedBlackTreeIterator.prototype, {
   // Node of the iterator
-  node: {
-    get() {
-      if (this._stack.length > 0) {
-        return this._stack[this._stack.length - 1]
-      }
-    },
-    enumerable: true,
-  },
+  get node() {
+    if (this._stack.length > 0) {
+      return this._stack[this._stack.length - 1]
+    }
+  }
+
   // Returns key
-  key: {
-    get() {
-      if (this._stack.length > 0) {
-        return this._stack[this._stack.length - 1].key
-      }
-    },
-    enumerable: true,
-  },
+  get key() {
+    if (this._stack.length > 0) {
+      return this._stack[this._stack.length - 1].key
+    }
+  }
+
   // Returns value
-  value: {
-    get() {
-      if (this._stack.length > 0) {
-        return this._stack[this._stack.length - 1].value
-      }
-    },
-    enumerable: true,
-  },
+  get value() {
+    if (this._stack.length > 0) {
+      return this._stack[this._stack.length - 1].value
+    }
+  }
+
   // Returns the position of this iterator in the sorted list
-  index: {
-    get() {
-      let idx = 0
-      const stack = this._stack
+  get index() {
+    let idx = 0
+    const stack = this._stack
 
-      if (stack.length === 0) {
-        const r = this.tree.root
+    if (stack.length === 0) {
+      const r = this.tree.root
 
-        if (r) {
-          return r._count
+      if (r) {
+        return r._count
+      }
+
+      return 0
+    }
+
+    const n = stack[stack.length - 1]
+
+    if (n.left) {
+      idx = n.left._count
+    }
+
+    for (let s = stack.length - 2; s >= 0; --s) {
+      const p = stack[s]
+
+      if (stack[s + 1] === p.right) {
+        ++idx
+
+        if (p.left) {
+          idx += p.left._count
         }
-
-        return 0
       }
+    }
 
-      if (stack[stack.length - 1].left) {
-        idx = stack[stack.length - 1].left._count
-      }
-
-      for (let s = stack.length - 2; s >= 0; --s) {
-        if (stack[s + 1] === stack[s].right) {
-          ++idx
-
-          if (stack[s].left) {
-            idx += stack[s].left._count
-          }
-        }
-      }
-
-      return idx
-    },
-    enumerable: true,
-  },
-})
+    return idx
+  }
+}
 
 /**
  * Fix up a double black node in a tree

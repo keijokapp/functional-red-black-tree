@@ -140,7 +140,8 @@ tape('insert()', t => {
 })
 
 tape('foreach', t => {
-  const u = iota(31).reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = iota(31)
+    .reduce((u, k, v) => u.insert(k, v), /** @type {Tree<number, number>} */ (makeTree()))
 
   // Check basic foreach
   /** @type {number[]} */
@@ -240,7 +241,8 @@ function compareIterators(a, b, t) {
 }
 
 tape('iterators', t => {
-  const u = iota(20).reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = iota(20)
+    .reduce((u, k, v) => u.insert(k, v), /** @type {Tree<number, number>} */ (makeTree()))
 
   // Try walking forward
   let iter = u.begin
@@ -282,7 +284,8 @@ tape('remove()', t => {
 
   for (let n = 0; n < sz.length; ++n) {
     const c = sz[n]
-    const u = iota(c).reduce((u, k, v) => u.insert(k, v), makeTree())
+    const u = iota(c)
+      .reduce((u, k, v) => u.insert(k, v), /** @type {Tree<number, number>} */ (makeTree()))
 
     for (let i = 0; i < c; ++i) {
       checkTree(u.remove(i), t)
@@ -294,12 +297,17 @@ tape('remove()', t => {
 
 tape('update()', t => {
   const arr = [0, 1, 2, 3, 4, 5, 6]
-  const u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = arr
+    .reduce((u, k, v) => u.insert(k, v), /** @type {Tree<number, number>} */ (makeTree()))
 
   for (let iter = u.begin; iter.hasNext; iter.next()) {
     const updated = iter.update(1000)
     t.equals(iter.value, iter.key, 'ensure no mutation')
-    t.equals(updated.find(iter.key).value, 1000, 'ensure update applied')
+    t.equals(
+      updated.find(/** @type {number} */ (iter.key)).value,
+      1000,
+      'ensure update applied',
+    )
     checkTree(updated, t)
     checkTree(u, t)
   }
@@ -311,12 +319,14 @@ tape('keys and values', t => {
   const originalKeys = ['potato', 'sock', 'foot', 'apple', 'newspaper', 'gameboy']
   const originalValues = [42, 10, false, '!!!', {}, null]
 
+  /** @type {Tree<string, unknown>} */
   let u = makeTree()
 
   for (let i = 0; i < originalKeys.length; ++i) {
     u = u.insert(originalKeys[i], originalValues[i])
   }
 
+  /** @type {[string, unknown][]} */
   const zipped = iota(6).map(i => [originalKeys[i], originalValues[i]])
 
   zipped.sort((a, b) => {
@@ -342,7 +352,8 @@ tape('keys and values', t => {
 
 tape('searching', t => {
   const arr = [0, 1, 1, 1, 1, 2, 3, 4, 5, 6, 6]
-  const u = arr.reduce((u, k, v) => u.insert(k, v), makeTree())
+  const u = arr
+    .reduce((u, k, v) => u.insert(k, v), /** @type {Tree<number, number>} */ (makeTree()))
 
   for (let i = 0; i < arr.length; ++i) {
     if (arr[i] !== arr[i - 1] && arr[i] !== arr[i + 1]) {
@@ -409,6 +420,7 @@ tape('searching', t => {
 })
 
 tape('slab-sequence', t => {
+  /** @type {Tree<number, number>} */
   let tree = makeTree()
 
   tree = tree.insert(0, 0)
@@ -455,6 +467,7 @@ tape('slab-sequence', t => {
 })
 
 tape('slab-sequence-2', t => {
+  /** @type {Tree<number, number>} */
   let u = makeTree()
 
   u = u.insert(12, 22)
@@ -489,38 +502,38 @@ tape('slab-sequence-2', t => {
   u = u.insert(2, 1)
   u = u.insert(3, 26)
   u = u.insert(21, 19)
-  u = u.remove(18, 17)
-  u = u.remove(17, 23)
-  u = u.remove(16, 4)
-  u = u.remove(15, 29)
-  u = u.remove(14, 10)
-  u = u.remove(13, 16)
-  u = u.remove(12, 22)
-  u = u.remove(6, 2)
-  u = u.remove(7, 21)
-  u = u.remove(8, 15)
-  u = u.remove(11, 3)
-  u = u.remove(4, 8)
-  u = u.remove(9, 9)
-  u = u.remove(10, 28)
-  u = u.remove(5, 27)
-  u = u.remove(31, 11)
-  u = u.remove(0, 14)
-  u = u.remove(30, 30)
-  u = u.remove(29, 5)
-  u = u.remove(1, 20)
-  u = u.remove(28, 24)
-  u = u.remove(2, 1)
-  u = u.remove(3, 26)
-  u = u.remove(27, 18)
-  u = u.remove(19, 7)
-  u = u.remove(26, 12)
-  u = u.remove(20, 13)
-  u = u.remove(25, 31)
-  u = u.remove(24, 6)
-  u = u.remove(21, 19)
-  u = u.remove(23, 25)
-  u.remove(22, 0)
+  u = u.remove(18)
+  u = u.remove(17)
+  u = u.remove(16)
+  u = u.remove(15)
+  u = u.remove(14)
+  u = u.remove(13)
+  u = u.remove(12)
+  u = u.remove(6)
+  u = u.remove(7)
+  u = u.remove(8)
+  u = u.remove(11)
+  u = u.remove(4)
+  u = u.remove(9)
+  u = u.remove(10)
+  u = u.remove(5)
+  u = u.remove(31)
+  u = u.remove(0)
+  u = u.remove(30)
+  u = u.remove(29)
+  u = u.remove(1)
+  u = u.remove(28)
+  u = u.remove(2)
+  u = u.remove(3)
+  u = u.remove(27)
+  u = u.remove(19)
+  u = u.remove(26)
+  u = u.remove(20)
+  u = u.remove(25)
+  u = u.remove(24)
+  u = u.remove(21)
+  u = u.remove(23)
+  u.remove(22)
 
   t.end()
 })
