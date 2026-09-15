@@ -1,9 +1,7 @@
-'use strict'
-
-const tape = require('tape')
-const util = require('util')
-const iota = require('iota-array')
-const makeTree = require('../rbtree.js')
+import tape from 'tape'
+import util from 'util'
+import iota from 'iota-array'
+import makeTree from '../rbtree.js'
 
 const COLORS = ['r', 'b', 'bb']
 

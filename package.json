@@ -2,6 +2,7 @@
   "name": "functional-red-black-tree",
   "version": "1.0.1",
   "description": "A fully persistent balanced binary search tree",
+  "type": "module",
   "main": "rbtree.js",
   "directories": {
     "test": "test"
@@ -13,7 +14,7 @@
     "tape": "^5.10.2"
   },
   "scripts": {
-    "lint": "eslint bench test eslint.config.mjs rbtree.js",
+    "lint": "eslint bench test eslint.config.js rbtree.js",
     "test": "tape test/*.js"
   },
   "repository": {

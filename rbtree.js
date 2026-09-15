@@ -1,7 +1,3 @@
-'use strict'
-
-module.exports = createRBTree
-
 const RED = 0
 const BLACK = 1
 
@@ -1094,6 +1090,6 @@ function defaultCompare(a, b) {
 }
 
 // Build a tree
-function createRBTree(compare) {
+export default function createRBTree(compare) {
   return new RedBlackTree(compare ?? defaultCompare)
 }

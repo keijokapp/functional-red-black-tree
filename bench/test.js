@@ -1,6 +1,4 @@
-'use strict'
-
-const createTree = require('../rbtree.js')
+import createTree from '../rbtree.js'
 
 let t = createTree()
 
